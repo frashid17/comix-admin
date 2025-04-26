@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: beautydb
+      POSTGRES_USER: beautyuser
+      POSTGRES_PASSWORD: beautypass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DB_NAME=beautydb
+      - DB_USER=beautyuser
+      - DB_PASSWORD=beautypass
+      - DB_HOST=db
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
