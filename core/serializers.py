@@ -35,3 +35,6 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = '__all__'
         read_only_fields = ('user', 'status', 'created_at')
+
+class ExpoPushTokenSerializer(serializers.Serializer):
+    expo_push_token = serializers.CharField()
