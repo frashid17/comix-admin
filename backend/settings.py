@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,9 +41,11 @@ INSTALLED_APPS = [
     'core', 
     'rest_framework',
     'rest_framework_simplejwt',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -53,6 +56,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'backend.urls'
+
+
 
 TEMPLATES = [
     {
@@ -130,3 +135,28 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = []
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Beauty Services Admin",  # 👈 Change the browser tab title
+    "site_header": "Beauty Services Admin",  # 👈 Change the sidebar header (instead of Django Administration)
+    "site_brand": "COSMIX",  
+    "welcome_sign": "Welcome to Cosmix Admin Panel",  # 👈 Text on the login screen
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],  # apps you want hidden (optional)
+    "show_ui_builder": True,  # lets you live tweak styles from the admin
+    "default_theme": "dark",  # 👈 Set dark mode by default
+}
