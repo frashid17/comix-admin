@@ -4,10 +4,12 @@ services:
   db:
     image: postgres:15
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: beautydb
-      POSTGRES_USER: beautyuser
-      POSTGRES_PASSWORD: beautypass
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -18,18 +20,14 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
-      - static_volume:/app/staticfiles  # 👈 Added this
+      - static_volume:/app/staticfiles
     ports:
       - "8000:8000"
-    environment:
-      - DEBUG=True
-      - DB_NAME=beautydb
-      - DB_USER=beautyuser
-      - DB_PASSWORD=beautypass
-      - DB_HOST=db
+    env_file:
+      - .env
     depends_on:
       - db
 
 volumes:
   postgres_data:
-  static_volume:   
+  static_volume:
