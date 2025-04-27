@@ -4,3 +4,8 @@ psycopg2-binary
 django-cors-headers
 Pillow
 djangorestframework-simplejwt
+requests
+drf-spectacular
+django-webpack-loader
+django-cors-headers
+django-jazzmin
