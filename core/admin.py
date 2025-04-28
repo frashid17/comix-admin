@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Service, Order, Profile
+from .models import Service, Order, Profile, Product
+from django.utils.html import format_html
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
@@ -18,3 +19,18 @@ class OrderAdmin(admin.ModelAdmin):
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'phone_number', 'gender', 'created_at')
     search_fields = ('user__username', 'phone_number')
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'created_at', 'product_image_preview')  
+    search_fields = ('name', 'description')
+    list_filter = ('created_at',)
+
+    readonly_fields = ('product_image_preview',)  
+
+    def product_image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" width="100" height="100" style="object-fit: cover;" />', obj.image.url)
+        return "-"
+    
+    product_image_preview.short_description = "Image Preview"
