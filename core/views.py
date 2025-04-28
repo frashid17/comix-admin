@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import Service, Order
-from .serializers import UserRegistrationSerializer, ServiceSerializer, OrderSerializer, ExpoPushTokenSerializer
+from .models import Service, Order, Profile, Product
+from .serializers import UserRegistrationSerializer, ServiceSerializer, OrderSerializer, ExpoPushTokenSerializer, ProductSerializer
 from rest_framework.response import Response
 from .utils import send_push_notification
 
@@ -47,3 +47,8 @@ class SaveExpoPushTokenView(generics.UpdateAPIView):
         profile.expo_push_token = serializer.validated_data['expo_push_token']
         profile.save()
         return Response({"message": "Push token saved successfully."}, status=status.HTTP_200_OK)
+
+class ProductListView(generics.ListAPIView):
+    queryset = Product.objects.all().order_by('-created_at')
+    serializer_class = ProductSerializer
+    permission_classes = [AllowAny] 
