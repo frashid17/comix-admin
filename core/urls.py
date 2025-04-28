@@ -1,5 +1,12 @@
 from django.urls import path
-from .views import UserRegistrationView, ServiceListView, CreateOrderView, UserOrderListView, SaveExpoPushTokenView
+from .views import (
+UserRegistrationView, 
+ServiceListView, 
+CreateOrderView, 
+UserOrderListView, 
+SaveExpoPushTokenView,
+ProductListView
+)
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
@@ -10,4 +17,5 @@ urlpatterns = [
     path('book/', CreateOrderView.as_view(), name='create_order'),
     path('my-bookings/', UserOrderListView.as_view(), name='user_order_list'),
     path('save-token/', SaveExpoPushTokenView.as_view(), name='save_expo_token'),
+     path('products/', ProductListView.as_view(), name='products'),
 ]
