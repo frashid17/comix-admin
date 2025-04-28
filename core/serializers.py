@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Service, Order
+from .models import Profile, Service, Order,Product
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(write_only=True, required=True)
@@ -38,3 +38,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class ExpoPushTokenSerializer(serializers.Serializer):
     expo_push_token = serializers.CharField()
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
