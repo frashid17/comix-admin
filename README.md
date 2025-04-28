@@ -1,4 +1,4 @@
-```markdown
+
 # Beauty Services & Products Backend
 
 This project is a **Dockerized Django REST Framework backend** for a **Beauty Services** mobile app and **E-commerce Store**.
