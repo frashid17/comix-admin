@@ -7,8 +7,12 @@ UserOrderListView,
 SaveExpoPushTokenView,
 ProductListView,
 UserProfileView,
-FeedbackCreateView
-
+FeedbackCreateView,
+CreatePaymentIntentView,
+StripeWebhookView,
+TransactionListView,
+CreateProductReviewView,
+SupportMessageListCreateView,
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -23,4 +27,9 @@ urlpatterns = [
     path('products/', ProductListView.as_view(), name='products'),
     path('profile/', UserProfileView.as_view(), name='profile'),
     path('feedback/', FeedbackCreateView.as_view(), name='submit-feedback'),
+    path('payments/create-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
+    path('webhooks/stripe/', StripeWebhookView.as_view(), name='stripe-webhook'),
+    path('transactions/', TransactionListView.as_view(), name='transaction-history'),
+    path('products/review/', CreateProductReviewView.as_view(), name='create-product-review'),
+    path('support/messages/', SupportMessageListCreateView.as_view(), name='support-messages'),
 ]
