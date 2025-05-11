@@ -16,3 +16,7 @@ EXPOSE 8000
 
 # Default command to run Django development server
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+##make migrations
+# docker-compose exec web python manage.py makemigrations core
+# docker-compose exec web python manage.py migrate
