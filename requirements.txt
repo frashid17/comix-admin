@@ -9,3 +9,5 @@ drf-spectacular
 django-webpack-loader
 django-cors-headers
 django-jazzmin
+stripe>=8.0.0
+
