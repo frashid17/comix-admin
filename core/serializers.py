@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Service, Order,Product
+from .models import Profile, Service, Order,Product, Feedback
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(write_only=True, required=True)
@@ -43,3 +43,22 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = [
+            'phone_number',
+            'gender',
+            'date_of_birth',
+            'address',
+            'city',
+            'country',
+            'profile_picture',
+        ]
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = ['id', 'order', 'rating', 'comment', 'created_at']
+        read_only_fields = ['id', 'created_at']
