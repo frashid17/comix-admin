@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, Order, Profile, Product
+from .models import Service, Order, Profile, Product, Feedback
 from django.utils.html import format_html
 
 @admin.register(Service)
@@ -17,8 +17,24 @@ class OrderAdmin(admin.ModelAdmin):
     
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'phone_number', 'gender', 'created_at')
-    search_fields = ('user__username', 'phone_number')
+    list_display = (
+        'user',
+        'phone_number',
+        'gender',
+        'date_of_birth',
+        'address',
+        'city',
+        'country',
+        'created_at'
+    )
+    search_fields = (
+        'user__username',
+        'phone_number',
+        'address',
+        'city',
+        'country',
+    )
+    list_filter = ('gender', 'city', 'country', 'created_at')
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -34,3 +50,9 @@ class ProductAdmin(admin.ModelAdmin):
         return "-"
     
     product_image_preview.short_description = "Image Preview"
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ('order', 'rating', 'comment', 'created_at')
+    search_fields = ('order__user__username', 'order__service__name', 'comment')
+    list_filter = ('rating', 'created_at')
