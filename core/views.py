@@ -1,10 +1,35 @@
+from rest_framework import serializers
+from rest_framework.views import APIView
 from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import Service, Order, Profile, Product
-from .serializers import UserRegistrationSerializer, ServiceSerializer, OrderSerializer, ExpoPushTokenSerializer, ProductSerializer
+from .models import Service, Order, Profile, Product, Feedback
+from .serializers import (
+    UserRegistrationSerializer, 
+    ServiceSerializer, 
+    OrderSerializer, 
+    ExpoPushTokenSerializer, 
+    ProductSerializer, 
+    ProfileSerializer,
+    FeedbackSerializer)
 from rest_framework.response import Response
 from .utils import send_push_notification
+from .serializers import ProfileSerializer
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = ProfileSerializer(request.user.profile)
+        return Response(serializer.data)
+
+    def put(self, request):
+        serializer = ProfileSerializer(request.user.profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
 
 class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
@@ -52,3 +77,13 @@ class ProductListView(generics.ListAPIView):
     queryset = Product.objects.all().order_by('-created_at')
     serializer_class = ProductSerializer
     permission_classes = [AllowAny] 
+
+class FeedbackCreateView(generics.CreateAPIView):
+    serializer_class = FeedbackSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        order = serializer.validated_data['order']
+        if order.user != self.request.user:
+            raise serializers.ValidationError("You can only review your own bookings.")
+        serializer.save()
