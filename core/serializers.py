@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Service, Order,Product, Feedback
+from .models import Profile, Service, Order,Product, Feedback, Transaction, ProductReview, SupportMessage
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(write_only=True, required=True)
@@ -62,3 +62,33 @@ class FeedbackSerializer(serializers.ModelSerializer):
         model = Feedback
         fields = ['id', 'order', 'rating', 'comment', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = '__all__'
+        read_only_fields = ['user', 'created_at']
+
+class ProductSerializer(serializers.ModelSerializer):
+    category = serializers.StringRelatedField()
+
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+class ProductReviewSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = ProductReview
+        fields = ['id', 'product', 'user', 'rating', 'comment', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at']
+
+class SupportMessageSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = SupportMessage
+        fields = ['id', 'user', 'message', 'is_from_admin', 'response_to', 'created_at']
+        read_only_fields = ['id', 'user', 'is_from_admin', 'created_at']
+
