@@ -40,13 +40,17 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)  # 👈 NEW
+    address = models.TextField(blank=True, null=True)        # 👈 NEW
+    city = models.CharField(max_length=100, blank=True, null=True)   # 👈 NEW
+    country = models.CharField(max_length=100, blank=True, null=True) # 👈 NEW
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expo_push_token = models.CharField(max_length=255, blank=True, null=True)
 
-
     def __str__(self):
         return self.user.username
+
     
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -62,3 +66,12 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Feedback(models.Model):
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])  # 1 to 5 stars
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.order.user.username} - {self.order.service.name} ({self.rating}★)"
