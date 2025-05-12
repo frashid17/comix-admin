@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.db.models import Avg
+from django.conf import settings
 from .models import (
     Service, 
     Order, 
@@ -109,9 +110,12 @@ class ProfileAdmin(admin.ModelAdmin):
     def location_map(self, obj):
         if obj.latitude and obj.longitude:
             return format_html(
-                f'<iframe width="100%" height="300" frameborder="0" style="border:0" '
-                f'src="https://www.google.com/maps/embed/v1/view?zoom=15&center={obj.latitude},{obj.longitude}&key=AIzaSyAQRgxwJ7mgwhqkvbHyvmUmOyZIJX7nNYI" '
-                f'allowfullscreen></iframe>'
+                '<iframe width="100%" height="300" frameborder="0" style="border:0" '
+                'src="https://www.google.com/maps/embed/v1/view?zoom=15&center={},{}&key={}" '
+                'allowfullscreen></iframe>',
+                obj.latitude,
+                obj.longitude,
+                settings.GOOGLE_MAPS_EMBED_API_KEY
             )
         return "No location set."
 
