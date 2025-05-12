@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Avg
 from .models import (
     Service, 
     Order, 
@@ -10,6 +11,14 @@ from .models import (
     ProductReview,
     SupportMessage)
 from django.utils.html import format_html
+from django.urls import reverse
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
+User = get_user_model()
+from django.contrib import admin
+from django.urls import re_path
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
@@ -24,6 +33,7 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'service__name')
     ordering = ('-created_at',)
     
+    
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = (
@@ -34,8 +44,15 @@ class ProfileAdmin(admin.ModelAdmin):
         'address',
         'city',
         'country',
-        'created_at'
+        'latitude',
+        'longitude',
+        'is_service_provider',
+        'is_approved_provider',
+        'created_at',
+        'average_rating',
     )
+    list_editable = ('is_service_provider', 'is_approved_provider')
+    readonly_fields = ('location_map','created_at')
     search_fields = (
         'user__username',
         'phone_number',
@@ -43,11 +60,63 @@ class ProfileAdmin(admin.ModelAdmin):
         'city',
         'country',
     )
-    list_filter = ('gender', 'city', 'country', 'created_at')
-    list_display = ('user', 'phone_number', 'is_service_provider', 'is_approved_provider', 'created_at')
-    list_editable = ('is_service_provider', 'is_approved_provider')
-    search_fields = ('user__username', 'phone_number')
-    list_filter = ('is_service_provider', 'is_approved_provider')
+    list_filter = (
+        'gender',
+        'city',
+        'country',
+        'is_service_provider',
+        'is_approved_provider',
+        'created_at'
+    )
+
+
+    actions = ['delete_low_rated_profiles']
+
+    def average_rating(self, obj):
+        feedbacks = Feedback.objects.filter(order__user=obj.user)
+        avg = feedbacks.aggregate(Avg('rating'))['rating__avg']
+        return round(avg, 2) if avg else "-"
+    
+    average_rating.short_description = "Avg Rating"
+
+    def delete_low_rated_profiles(self, request, queryset):
+        deleted = 0
+        for profile in queryset:
+            avg = Feedback.objects.filter(order__user=profile.user).aggregate(Avg('rating'))['rating__avg']
+            if avg and avg < 3:
+                profile.user.delete()
+                deleted += 1
+        self.message_user(request, f"Deleted {deleted} users with low ratings.")
+    
+    delete_low_rated_profiles.short_description = "Delete users with average rating below 3"
+
+    fieldsets = (
+        
+        (None, {
+            'fields': ('user', 'phone_number', 'gender', 'date_of_birth', 'address', 'city', 'country', 'profile_picture')
+        }),
+        
+        ("Provider Info", {
+            'fields': ('is_service_provider', 'is_approved_provider', 'certification')
+        }),
+        ("Location Info", {
+            'fields': ('latitude', 'longitude', 'location_map')
+        }),
+        ("System", {
+            'fields': ( 'expo_push_token',)
+        }),
+    )
+    def location_map(self, obj):
+        if obj.latitude and obj.longitude:
+            return format_html(
+                f'<iframe width="100%" height="300" frameborder="0" style="border:0" '
+                f'src="https://www.google.com/maps/embed/v1/view?zoom=15&center={obj.latitude},{obj.longitude}&key=AIzaSyAQRgxwJ7mgwhqkvbHyvmUmOyZIJX7nNYI" '
+                f'allowfullscreen></iframe>'
+            )
+        return "No location set."
+
+    location_map.short_description = "Map Location"
+
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -78,7 +147,6 @@ class TransactionAdmin(admin.ModelAdmin):
     list_filter = ('payment_method', 'status', 'created_at')
 
 
-
 class ProductInline(admin.TabularInline):
     model = Product
     extra = 0  # No blank rows
@@ -102,6 +170,58 @@ class ProductReviewAdmin(admin.ModelAdmin):
 
 @admin.register(SupportMessage)
 class SupportMessageAdmin(admin.ModelAdmin):
-    list_display = ['user', 'message', 'is_from_admin', 'created_at']
+    list_display = ['linked_user', 'preview', 'is_from_admin', 'created_at']
     list_filter = ['is_from_admin', 'created_at']
     search_fields = ['user__username', 'message']
+
+    def linked_user(self, obj):
+        url = f"/admin/support/thread/{obj.user.id}/"
+        return format_html('<a href="{}" target="_blank">{}</a>', url, obj.user.username)
+
+    linked_user.short_description = "User"
+
+    def preview(self, obj):
+        return (obj.message[:50] + '...') if len(obj.message) > 50 else obj.message
+ 
+
+@staff_member_required
+def support_thread_view(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        if "resolve_thread" in request.POST:
+            user.profile.support_resolved = True
+            user.profile.save()
+            return redirect(request.path)
+        elif "message" in request.POST:
+            msg = request.POST.get("message")
+            if msg:
+                SupportMessage.objects.create(
+                    user=user,
+                    message=msg,
+                    is_from_admin=True
+                )
+                return redirect(request.path)
+
+    messages = SupportMessage.objects.filter(user=user).order_by('created_at')
+
+    context = {
+        'user': user,
+        'messages': messages,
+        'title': f'Support Thread with {user.username}',
+        'resolved': user.profile.support_resolved
+    }
+
+    return TemplateResponse(request, 'admin/support_thread.html', context)
+
+
+
+original_get_urls = admin.site.get_urls
+
+def get_urls():
+    custom_urls = [
+        re_path(r'^support/thread/(?P<user_id>\d+)/$', support_thread_view, name='support-thread'),
+    ]
+    return custom_urls + original_get_urls()
+
+admin.site.get_urls = get_urls
