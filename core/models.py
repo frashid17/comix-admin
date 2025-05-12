@@ -50,6 +50,10 @@ class Profile(models.Model):
     is_service_provider = models.BooleanField(default=False)
     is_approved_provider = models.BooleanField(default=False)
     certification_document = models.FileField(upload_to='certifications/', null=True, blank=True)
+    support_resolved = models.BooleanField(default=False)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+    certification = models.FileField(upload_to='certifications/', blank=True, null=True)
 
     def __str__(self):
         return self.user.username
