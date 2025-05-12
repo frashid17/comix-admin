@@ -13,6 +13,7 @@ StripeWebhookView,
 TransactionListView,
 CreateProductReviewView,
 SupportMessageListCreateView,
+AdminSupportMessageView,
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -32,4 +33,5 @@ urlpatterns = [
     path('transactions/', TransactionListView.as_view(), name='transaction-history'),
     path('products/review/', CreateProductReviewView.as_view(), name='create-product-review'),
     path('support/messages/', SupportMessageListCreateView.as_view(), name='support-messages'),
+    path('support/admin/send/', AdminSupportMessageView.as_view(), name='admin-support-send'),
 ]
