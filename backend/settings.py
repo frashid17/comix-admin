@@ -85,6 +85,8 @@ import os
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
+GOOGLE_MAPS_EMBED_API_KEY = os.environ.get('GOOGLE_MAPS_EMBED_API_KEY')
+
 
 DATABASES = {
     'default': {
