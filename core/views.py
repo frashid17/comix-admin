@@ -5,9 +5,10 @@ from django.http import HttpResponse
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.views import APIView
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from django.contrib.auth.models import User
 from .models import Service, Order, Profile, Product, Feedback, Transaction, ProductReview, SupportMessage
 from .serializers import (
     UserRegistrationSerializer, 
@@ -206,3 +207,15 @@ class SupportMessageListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+class AdminSupportMessageView(generics.CreateAPIView):
+    serializer_class = SupportMessageSerializer
+    permission_classes = [IsAdminUser]  # Only staff allowed
+
+    def perform_create(self, serializer):
+        user_id = self.request.data.get("user_id")
+        target_user = get_object_or_404(User, id=user_id)
+
+        serializer.save(
+            user=target_user,
+            is_from_admin=True
+        )
