@@ -36,6 +36,8 @@ It includes:
 - **Jazzmin Admin Theme**
 - **Pillow** (for image uploads)
 - **CORS Headers**
+- **django-jazzmin**
+- **stripe>=8.0.0**
 
 ---
 
@@ -60,6 +62,10 @@ DB_NAME=beautydb
 DB_USER=beautyuser
 DB_PASSWORD=beautypass
 DB_HOST=db
+
+for stripe
+STRIPE_SECRET_KEY={add your stripe secret key}
+STRIPE_WEBHOOK_SECRET={add your webhook secret}
 ```
 
 ### 3. Build and start Docker containers
