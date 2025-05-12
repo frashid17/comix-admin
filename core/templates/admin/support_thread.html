@@ -1,0 +1,113 @@
+={% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .chat-box {
+        max-height: 500px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 1em;
+        background: #fafafa;
+        margin-bottom: 1.5em;
+    }
+    .message {
+        padding: 10px 14px;
+        border-radius: 16px;
+        margin-bottom: 12px;
+        max-width: 70%;
+        word-wrap: break-word;
+        position: relative;
+        color: white;
+    }
+    .from-admin {
+        background-color: #000000;
+        align-self: flex-end;
+        margin-left: auto;
+    }
+    .from-user {
+        background-color: #000000;
+        align-self: flex-start;
+        margin-right: auto;
+    }
+    .timestamp {
+        font-size: 0.75em;
+        color: #ccc;
+        margin-top: 4px;
+    }
+    .chat-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+    .reply-form textarea {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+    .reply-form button,
+    .resolve-btn button {
+        margin-top: 10px;
+        padding: 10px 16px;
+        border: none;
+        background-color: #0b5ed7;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        margin-left: 12px;
+    }
+    .status-open {
+        background: #fff3cd;
+        color: #856404;
+    }
+    .status-resolved {
+        background: #d4edda;
+        color: #155724;
+    }
+</style>
+
+<h2>
+    Support Thread with {{ user.username }}
+    {% if resolved %}
+        <span class="status-badge status-resolved">Resolved</span>
+    {% else %}
+        <span class="status-badge status-open">Open</span>
+    {% endif %}
+</h2>
+
+<div class="chat-box">
+    <div class="chat-wrapper">
+        {% for msg in messages %}
+            <div class="message {% if msg.is_from_admin %}from-admin{% else %}from-user{% endif %}">
+                <strong>{% if msg.is_from_admin %}Admin{% else %}{{ user.username }}{% endif %}</strong><br>
+                {{ msg.message }}
+                <div class="timestamp">{{ msg.created_at }}</div>
+            </div>
+        {% empty %}
+            <p>No messages yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% if not resolved %}
+    <form method="post" class="reply-form">
+        {% csrf_token %}
+        <textarea name="message" rows="3" placeholder="Type your reply here..." required></textarea><br>
+        <button type="submit">Send Reply</button>
+    </form>
+
+    <form method="post" class="resolve-btn">
+        {% csrf_token %}
+        <button type="submit" name="resolve_thread">Mark as Resolved</button>
+    </form>
+{% endif %}
+
+<a href="{% url 'admin:index' %}">← Back to Admin</a>
+{% endblock %}
