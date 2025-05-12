@@ -20,3 +20,8 @@ CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 ##make migrations
 # docker-compose exec web python manage.py makemigrations core
 # docker-compose exec web python manage.py migrate
+
+#stripe listen to local
+# stripe listen --forward-to localhost:8000/stripe/webhook/
+# stripe trigger payment_intent.succeeded   
+# stripe trigger payment_intent.payment_failed
