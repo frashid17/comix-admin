@@ -55,6 +55,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             'city',
             'country',
             'profile_picture',
+            'latitude',
+            'longitude',
         ]
 
 class FeedbackSerializer(serializers.ModelSerializer):
